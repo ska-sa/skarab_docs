@@ -1,0 +1,51 @@
+Issue when running block automation
+=====================================
+[IP_Flow 19-395] Problem validating against XML schema: Invalid value format for this type spirit:order
+
+Solution
+=====================================
+We had the same problem when switching to Ubuntu 14.04, and there actually is a solution for it: make sure your locales are set to English.
+
+$> env | grep LC_*
+
+It should only show english (or C) locales, all others are known to cause parsing errors in some numbers, usually caused by wrong string-to-float conversions (e.g. 18,29 in german is 18.29 in english). You can change the locales in the file /etc/default/locales This is not the first time we had problems with the locale settings, Xilinx does not seem to test their software with anything else than en_US, causing obscure bugs like this one.
+
+You can unset all LC_* and LANG* before starting Vivado
+
+
+
+
+Doc nav DocNav
+==========================
+./docnav: error while loading shared libraries: libfontconfig.so.1: cannot open shared object file: No such file or directory
+
+On Ubuntu 14.04 you need to add the "i386 architecture" to dpkg:
+ 
+$ sudo dpkg --add-architecture i386
+$ sudo apt-get update
+$ sudo apt-get install libc6:i386
+ 
+Then run "ldd" getting the list of libraries that were "not found":
+ 
+$ ldd docnav
+
+Then use "dpkg -S libxxx*" to find the package name, replaced the ":amd64" with ":i386" in the did "apt-get install" then repeated that over and over until ldd said had no "not found" entires. For me that was:
+ 
+dpkg -S libstdc*:i386 
+sudo apt-get install libstdc++6:i386
+dpkg -S libfontconfig*
+sudo apt-get install libfontconfig1:i386
+sudo apt-get install libXext:i386
+dpkg -S libXext*
+sudo apt-get install libxext6:i386
+dpkg -S libxren*
+sudo apt-get install libxrender1:i386
+dpkg -S libgthr*
+sudo apt-get install libgthread:i386
+dpkg -S libglib*
+sudo apt-get install libglib2.0-0:i386
+dpkg -S libSM*
+sudo apt-get install libsm6:i386
+
+Now dovnav should run
+
